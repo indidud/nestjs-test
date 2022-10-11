@@ -5,6 +5,9 @@ import { UsersModule } from './users/users.module';
 import { UsersController } from './users/users.controller';
 import { User } from './users/user.entity';
 
+import { AuthModule } from './auth/auth.module';
+import { AuthController } from './auth/auth.controller';
+
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
@@ -30,7 +33,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
     UsersModule,
+    AuthModule,
   ],
-  controllers: [AppController, UsersController],
+  controllers: [AppController, UsersController, AuthController],
 })
 export class AppModule {}
