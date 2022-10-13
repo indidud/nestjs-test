@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 
 import { UsersModule } from './users/users.module';
@@ -8,9 +9,16 @@ import { User } from './users/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { AuthController } from './auth/auth.controller';
 
+import { TournamentModule } from './tournaments/tournaments.module';
+import { TournamentController } from './tournaments/tournaments.controller';
+import { Tournament } from './tournaments/tournament.entity';
+
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+import { RolesGuard } from './common/roles.guard';
+
+import { UserMiddleware } from './common/middlewares/user.middleware';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -26,7 +34,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           username: configService.get('DB_USERNAME'),
           password: configService.get('DB_PASSWORD'),
           database: configService.get('DB_NAME'),
-          entities: [User],
+          entities: [User, Tournament],
           synchronize: true,
         };
       },
@@ -34,7 +42,23 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     UsersModule,
     AuthModule,
+    TournamentModule,
   ],
-  controllers: [AppController, UsersController, AuthController],
+  controllers: [
+    AppController,
+    UsersController,
+    AuthController,
+    TournamentController,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(UserMiddleware).forRoutes('tournaments');
+  }
+}
