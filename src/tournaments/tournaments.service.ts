@@ -10,8 +10,12 @@ export class TournamentService {
     private repository: Repository<Tournament>,
   ) {}
 
-  async save(body: any): Promise<Tournament[]> {
+  async save(body): Promise<Tournament[]> {
     return this.repository.save(body);
+  }
+
+  async update(id: number, body: Partial<Tournament>) {
+    return this.repository.update(id, body);
   }
 
   findAll(): Promise<Tournament[]> {
